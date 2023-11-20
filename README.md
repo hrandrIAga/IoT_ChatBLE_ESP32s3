@@ -1,69 +1,84 @@
-# IoT_ChatBLE_ESP32s3
-This program connects 3 Esp32S3 in BLE, and establishes a chat between them.  The program uses the serial port of each user.  It first asks the user to enter their name for the chat.  The user can then enter messages (choosing the receiver) and receive messages from other connected users.
+# **IoT project : Building a BLE chat with ESP32s3 boards**
 
-## Step 1 = Unidirectional chat in ./draft/UnidirectionalChat
-inspired by the **ArduinoBLE/Examples/Central/LedControl** and **ArduinoBLE/Examples/Peripheral/Led** in which the central modifies the value of the peripheral characteristic when its own reboot button is pressed --> the peripheral Led color changes
+## *Introduction*
 
-We start the project by building an unidirectional chat :
-1/ connects both boards in serial
-2/ the first board is used as a Central and connects to the peripheral (2nd board)
-3/ when the central's reboot button is pressed and released, the characteristic (a string) of the peripheral takes the value of the message : "Hello, this is a message from central"
-4/ the peripheral print his new characteristic
+I carried out this ~15h projects as part of the course [NET4104: Wireless internet concepts, technologies and architectures](https://enseignements.telecom-sudparis.eu/fiche.php?c=NET4104) (Télécom SudParis master 1 Level)
 
-## Step 2 = Bidirectional chat thanks to a relay
-improvement from **step 1 ./draft**
-1/ upload ESP32_A.ino in one board, ESP32_r, in a second board, ESP32_B in a third board  
-2/ connects all boards in serial  
-3/ the board A starts as a central with the Board R as a Peripheral, the B starts as a Peripheral but doesn't have central yet  
-4/ The user can write a message to send to B, by writing the board's R characteristic  
-5/ 30s later, the board A switches to the peripheral state, while the board R switch to central with B as a peripheral  
-6/ the board R transmits the message to B by writing B's characteristic with R's own characteristic value that was written by A at step 4  
-7/ 30s later, the board B switches to the central state with A as a peripheral and R to the peripheral state. B's characteristic is print to display the message sent by A  
-7bis/ then B user can write a message to send to B, by writing the board's A characteristic  
-8/ 30s later, the board A switches to Central with R as a peripheral and B switch to Peripheral without any central yet. A'scharacteristic is print to display the message sent by B  and A is ready to write and send a new message again
-9/ ...repeat...
+## *Multi-hop BLE chat*
 
-In short, the state changes and abilities can be summed up in the following tables :
+This program connects 3 Esp32S3 in BLE, and establishes a chat between them.
 
-### i/ states ability
+The program uses the serial port of each user. 
+It first asks the user to enter their name for the chat. 
+The user can then enter messages (choosing the receiver) and receive messages from other connected users.
 
-| State   |Abilities|
-| ------- | ------- |
-| CENTRAL | Print eventual message received + write in serial a message to send  |
-| PERIPHERAL| Wait for its characteristic to be written + the board's characteristic is written by its central |
+The special feature of the **use case allowing the user to choose the receiver** has made it possible to implement the "multi-hop" functionality within this network consisting of 3 esp32s3.
 
-### ii/ states switches
+## Composition tu repo Github
 
-|Timeslot Start |state of Board A|State of Board Relay| State of Board B|
-| -------| -------        | -------            | -------         |
-| 0s     | Central of Relay | Peripheral of A  | Peripheral scanning|
-| +30s     | Peripheral scanning | Central of B  | Peripheral of Relay|
-| +60s     | Peripheral of B | Peripheral scanning | Central of A|
-| +90s     | Central of Relay | Peripheral of A  | Peripheral scanning|
-| ...| repeat | repeat | repeat |
+* Draft folder : contains the various stages and more/less functional tests as part of the project
+* Report_NET4104_chatBLE.pdf : project report with explanations of its design and code
+* main_ESP32s3_A.ino : code to *upload* on a first ESP32s3 (called ESP32s3_A)
+* main_ESP32s3_R.ino : code to *upload* on a second ESP32s3 (called ESP32s3_B)
+* main_ESP32s3_B.ino : code to *upload* on a third ESP32s3 (called ESP32s3_R)
 
-## Step 3 = BLE chat with destination choice
-improvement from **step 2 ./draft/BidirectionalChat**
 
-All 3 Boards can act as both central and peripheral ie. can send, receive and transmit.
-That's why each board can choose the destination of the message.
-When one board's switch to central and if its characteristic was written during its peripheral state, the board check if it is the destination  :
-* if it does, the message is printed in the terminal, and the human user of the current board is asked to write a new message
-* if it does not, the message is transmitted to its peripheral without being printed
+# Arborescence du dossier
 
-### i/ states ability
+├─ [Draft](Draft)
+├─ [main_ESP32s3_A.ino](main_ESP32s3_A.ino)
+├─ [main_ESP32s3_B.ino](main_ESP32s3_B.ino)
+├─ [main_ESP32s3_R.ino](main_ESP32s3_R.ino)
+├─ [Report.pdf](Report.pdf)
+└─ [README.md](README.md)
+ │    ├─ [Unidirectional_Chat](Draft/Unidirectional_Chat)
+ │   │   ├─ [Central_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Central_UnidirectionalChat.ino)
+  │  │   ├─ [Peripheral_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Peripheral_UnidirectionalChat.ino)
+  │  │   └─ [README_UnidirectionalChat.md](Draft/Unidirectional_Chat/README_UnidirectionalChat.md)
+  │  ├─ [Bidirectional_Chat](Draft/Bidirectional_Chat)
+  │  │   ├─ [ESP32_A.ino](Draft/Bidirectional_Chat/ESP32_A.ino)
+  │  │   ├─ [ESP32_B.ino](Draft/Bidirectional_Chat/ESP32_B.ino)
+  │  │   ├─ [ESP32_Relay.ino](Draft/Bidirectional_Chat/ESP32_Relay.ino)
+ │   │   └─ [README_BidirectionalChat.md](Draft/Bidirectional_Chat/README_BidirectionalChat.md)
+  │  └─ [ChatBLE_DestinationChoice](Draft/ChatBLE_DestinationChoice)
+│	│        ├─ [ESP32s3_A.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_A.ino)
+│	│        ├─ [ESP32s3_B.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_B.ino)
+│	 │       ├─ [ESP32s3_Relay.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_Relay.ino)
+│	  │      └─ [README_DestinationChoice.md](Draft/ChatBLE_DestinationChoice/README_DestinationChoice.md)
 
-| State   |Abilities|
-| ------- | ------- |
-| CENTRAL | Print eventual message received + write in serial a message to send after selecting the destination |
-| PERIPHERAL| Wait for its characteristic to be written + the board's characteristic is written by its central |
 
-### ii/ states switches
 
-|Timeslot Start |state of Board A|State of Board R| State of Board B|
-| -------| -------        | -------            | -------         |
-| 0s     | Central of R | Peripheral of A  | Peripheral scanning|
-| +30s     | Peripheral scanning | Central of B  | Peripheral of R |
-| +60s     | Peripheral of B | Peripheral scanning | Central of A|
-| +90s     | Central of R | Peripheral of A  | Peripheral scanning|
-| ...| repeat | repeat | repeat |
+
+
+
+
+## *System design*
+*For more details on the design and implementation of the project, please refer to the document Rapport_NET4104_chatBLE.pdf*.
+
+IDE chosen: Arduino IDE ([local](https://docs.arduino.cc/software/ide-v2)) or Arduino cloud ([online](https://cloud.arduino.cc/))
+
+Using the [ArduinoBLE] library (https://www.arduino.cc/reference/en/libraries/arduinoble/) makes programming Bluetooth with Arduino very easy.
+
+> To build this network, you need : 
+* 3 ESP32s3s
+* 3 USB ports for serial connection to the microcontrollers
+* use one or other of the IDEs mentioned above to implement the code corresponding to each ESP32s3.
+
+## *Implementing the system*
+1/ install Arduino IDE or Arduino cloud  
+2/ upload \main_ESP32s3_R.ino on one serial-connected board (called R)   
+3/ upload \main_ESP32s3_A.ino on a second serial-connected board (called A)  
+4/ upload \main_ESP32s3_B.ino on a third serial-connected board (called B)  
+5/ launch (or click on reset button) the board R  
+6/ wait for 30 seconds  
+7/ Launch (or click on reset reset buttons) A and B  
+8/ type your username (=pseudoname) in less than 10 seconds  
+9/ type the local name ('r','a', or 'b') of the board you want to chat with  
+10/ type the message you want to send  
+11/ the received messages are displayed on the terminal  
+12/ type new messages you want to send when it's your turn  
+13/ ...repeat...  
+
+
+
+
