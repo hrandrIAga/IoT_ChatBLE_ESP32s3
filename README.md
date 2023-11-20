@@ -32,6 +32,7 @@ The special feature of the **use case allowing the user to choose the receiver**
 ├─ [Report.pdf](Report.pdf)  
 └─ [README.md](README.md)  
     ├─ [Unidirectional_Chat](Draft/Unidirectional_Chat)  
+<<<<<<< HEAD
     │    ├─ [Central_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Central_UnidirectionalChat.ino)  
     │    ├─ [Peripheral_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Peripheral_UnidirectionalChat.ino)  
     │    └─ [README_UnidirectionalChat.md](Draft/Unidirectional_Chat/README_UnidirectionalChat.md)  
@@ -40,6 +41,16 @@ The special feature of the **use case allowing the user to choose the receiver**
     │    ├─ [ESP32_B.ino](Draft/Bidirectional_Chat/ESP32_B.ino)  
     │    ├─ [ESP32_Relay.ino](Draft/Bidirectional_Chat/ESP32_Relay.ino)  
     │    └─ [README_BidirectionalChat.md](Draft/Bidirectional_Chat/README_BidirectionalChat.md)  
+=======
+    |    ├─ [Central_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Central_UnidirectionalChat.ino)  
+    |    ├─ [Peripheral_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Peripheral_UnidirectionalChat.ino)  
+    |    └─ [README_UnidirectionalChat.md](Draft/Unidirectional_Chat/README_UnidirectionalChat.md)  
+    ├─ [Bidirectional_Chat](Draft/Bidirectional_Chat)  
+    |    ├─ [ESP32_A.ino](Draft/Bidirectional_Chat/ESP32_A.ino)  
+    |    ├─ [ESP32_B.ino](Draft/Bidirectional_Chat/ESP32_B.ino)  
+    |    ├─ [ESP32_Relay.ino](Draft/Bidirectional_Chat/ESP32_Relay.ino)  
+    |    └─ [README_BidirectionalChat.md](Draft/Bidirectional_Chat/README_BidirectionalChat.md)  
+>>>>>>> cf72ca1388d465852d48f2319e7c47251ac0c53a
     └─ [ChatBLE_DestinationChoice](Draft/ChatBLE_DestinationChoice)  
         ├─ [ESP32s3_A.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_A.ino)  
         ├─ [ESP32s3_B.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_B.ino)  
