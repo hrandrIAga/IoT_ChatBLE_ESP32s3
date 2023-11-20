@@ -32,14 +32,14 @@ The special feature of the **use case allowing the user to choose the receiver**
 ├─ [Report.pdf](Report.pdf)  
 └─ [README.md](README.md)  
     ├─ [Unidirectional_Chat](Draft/Unidirectional_Chat)  
-        ├─ [Central_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Central_UnidirectionalChat.ino)  
-        ├─ [Peripheral_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Peripheral_UnidirectionalChat.ino)  
-        └─ [README_UnidirectionalChat.md](Draft/Unidirectional_Chat/README_UnidirectionalChat.md)  
+    |    ├─ [Central_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Central_UnidirectionalChat.ino)  
+    |    ├─ [Peripheral_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Peripheral_UnidirectionalChat.ino)  
+    |    └─ [README_UnidirectionalChat.md](Draft/Unidirectional_Chat/README_UnidirectionalChat.md)  
     ├─ [Bidirectional_Chat](Draft/Bidirectional_Chat)  
-        ├─ [ESP32_A.ino](Draft/Bidirectional_Chat/ESP32_A.ino)  
-        ├─ [ESP32_B.ino](Draft/Bidirectional_Chat/ESP32_B.ino)  
-        ├─ [ESP32_Relay.ino](Draft/Bidirectional_Chat/ESP32_Relay.ino)  
-        └─ [README_BidirectionalChat.md](Draft/Bidirectional_Chat/README_BidirectionalChat.md)  
+    |    ├─ [ESP32_A.ino](Draft/Bidirectional_Chat/ESP32_A.ino)  
+    |    ├─ [ESP32_B.ino](Draft/Bidirectional_Chat/ESP32_B.ino)  
+    |    ├─ [ESP32_Relay.ino](Draft/Bidirectional_Chat/ESP32_Relay.ino)  
+    |    └─ [README_BidirectionalChat.md](Draft/Bidirectional_Chat/README_BidirectionalChat.md)  
     └─ [ChatBLE_DestinationChoice](Draft/ChatBLE_DestinationChoice)  
         ├─ [ESP32s3_A.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_A.ino)  
         ├─ [ESP32s3_B.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_B.ino)  
@@ -67,7 +67,7 @@ Using the [ArduinoBLE] library (https://www.arduino.cc/reference/en/libraries/ar
 ## *Implementing the system*
 1/ install Arduino IDE or Arduino cloud  
 2/ upload \main_ESP32s3_R.ino on one serial-connected board (called R)   
-3/ upload \main_ESP32s3_A.ino on a second serial-connected board (called A)  
+/ upload \main_ESP32s3_A.ino on a second serial-connected board (called A)  
 4/ upload \main_ESP32s3_B.ino on a third serial-connected board (called B)  
 5/ launch (or click on reset button) the board R  
 6/ wait for 30 seconds  
