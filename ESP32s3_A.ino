@@ -2,7 +2,7 @@
 #include <ArduinoBLE.h>
 
 /*
-ESP32s3_R
+ESP32s3_A
 */
 
 
@@ -11,8 +11,7 @@ ESP32s3_R
 //==========================
 
 
-
-
+// List of the different states in which the board can be in
 enum SetupState {
   CENTRAL_SETUP,
   WAIT,
@@ -23,17 +22,17 @@ bool box = true;
 String destination;
 String username;
 String messageToB;
-String messageFromA = "(r)";
+String messageFromB = "(a)";
 String serialRecv = "";
 bool serialMessageReceived;
 unsigned long intervalStartTime = 0;
 unsigned long intervalDuration = 30000;
 
 
-BLEService relayService("8e412615-8d6a-4982-8c12-2a5d8f5eff29AC");
-BLEStringCharacteristic relayCharacteristic("62c7d399-e3b8-4580-876e-5a75db102cf5", BLERead | BLEWrite, 512 );
+BLEService aService("99f0559c-6828-4a2d-ba56-5d109fba2522");
+BLEStringCharacteristic aCharacteristic("121cc516-a802-4b39-b809-f68645efe490", BLERead | BLEWrite, 512 );
 
-SetupState currentState = PERIPHERAL_SETUP;
+SetupState currentState = CENTRAL_SETUP; // start as a Central
 
 
 //==========================
@@ -41,6 +40,7 @@ SetupState currentState = PERIPHERAL_SETUP;
 //==========================
 
 
+// Connection try and check to the peripheral
 void controlMessage(BLEDevice peripheral) {
   Serial.println("Connecting . . .");
  
@@ -51,44 +51,50 @@ void controlMessage(BLEDevice peripheral) {
     return;
   }
  
+ // Checking if the peripheral got the right attribute
   Serial.println("Discovering attribute . . .");
   if (peripheral.discoverAttributes()) {
-    Serial.println("Attributes discovered");
+    Serial.println("Attribute discovered");
   } else {
     Serial.println("Attribute discovery failed!");
     peripheral.disconnect();
     return;
   }
  
-  BLECharacteristic bCharacteristic = peripheral.characteristic("8b7e081e-13e0-4b72-81f8-f6695b0cd749");
+  // Checking if the peripheral got the right characteristics
+  BLECharacteristic relayCharacteristic = peripheral.characteristic("62c7d399-e3b8-4580-876e-5a75db102cf5");
  
-  if (!bCharacteristic) {
-    Serial.println("Peripheral does not have message characteristic!");
+  if (!relayCharacteristic) {
+    Serial.println("Peripheral does not have relay message characteristic!");
     peripheral.disconnect();
     return;
-  } else if (!bCharacteristic.canWrite()) {
+  } else if (!relayCharacteristic.canWrite()) {
     Serial.println("Peripheral does not have a writable relay message characteristic!");
     peripheral.disconnect();
     return;
   }
- 
-      if (messageFromA.charAt(1) == 'b') {
-      messageToB = relayCharacteristic.value();
+
+  //if the destination of the received message is the board 'r'
+    if (messageFromB.charAt(1) == 'r') { 
+      messageToB = aCharacteristic.value();
       char messageToRelay[512];
       sprintf(messageToRelay, "%s", messageToB.c_str());
-
-      bCharacteristic.writeValue(messageToRelay);
+ // the received message is transmitted to 'r' by writing its characteristic and this board serve as a relay
+      relayCharacteristic.writeValue(messageToRelay);
       Serial.println("transmitted");
       Serial.println("you can't send a message as you serve as a relay for another communication");
-   } else if (messageFromA.charAt(1) == 'r') {
 
-  
+  //if the destination of the received message is this board 'a'    
+   } else if (messageFromB.charAt(1) == 'a') {
+ 
+ 
   Serial.println("Select Destination's device by its local name:");
   Serial.println("- enter b if you want to communicate with ESP32s3_B");
-  Serial.println("- enter a if you wat to communicate with ESP32s3_A");
+  Serial.println("- enter r if you wat to communicate with ESP32s3_R");
   Serial.setTimeout(10000);
   destination = Serial.readStringUntil('\n');
  
+ // telling the human user that he can Write a new message
   Serial.println("Type your message (in 20s):");
   Serial.setTimeout(20000);
   
@@ -101,26 +107,25 @@ void controlMessage(BLEDevice peripheral) {
   sprintf(messageToRelay, "(%s) %s: %s", destination.c_str(), username.c_str(), messageToB.c_str());
 
 
-  bCharacteristic.writeValue(messageToRelay);
+  relayCharacteristic.writeValue(messageToRelay);
    }
- 
- }
- 
- 
 
+}
 
 
 void centralSetup() {
  
-   // begin initialization
+   // begin initialization as a central
   if (!BLE.begin()) {
     Serial.println("Starting BLE module failed!");
     exit(1);
   }
-  
-  Serial.println("on ESP32s3_relay ready to send . . .");
    
-  BLE.scanForName("ESP32s3_B");
+  Serial.print("user : ");
+  Serial.print(username);
+  Serial.print(" on ESP32s3_A ready to send . . .");
+  // Looking for the peripheral ESP32s3_R
+  BLE.scanForName("ESP32s3_R");
   
   BLEDevice peripheral = BLE.available();
  
@@ -139,66 +144,64 @@ void centralLoop() {
     Serial.print(peripheral.advertisedServiceUuid());
     Serial.println();
    
-    if (peripheral.localName() != "ESP32s3_B") { //as defined in ESP32s3_B
+    if (peripheral.localName() != "ESP32s3_R") { 
       return;
     }
    
-    // stop scanning
+
     BLE.stopScan();
 
 
     controlMessage(peripheral);
    
+
    peripheral.disconnect();
-   // BLE.scanForName("ESP32s3_Relay");
   }
 }
 
 
 void peripheralSetup() {
-   // begin initialization
+   // begin initialization as a peripheral
   if (!BLE.begin()) {
     Serial.println("Starting BLE module failed!");
     exit(1);
   }
   //set advertised local name and service UUID
-  BLE.setLocalName("ESP32s3_R");
-  BLE.setAdvertisedService(relayService);
+  BLE.setLocalName("ESP32s3_A");
+  BLE.setAdvertisedService(aService);
  
   //add the characteristic to the service
-  relayService.addCharacteristic(relayCharacteristic);
+  aService.addCharacteristic(aCharacteristic);
  
   //add service
-  BLE.addService(relayService);
+  BLE.addService(aService);
  
   //set charachteristic's initial value
-  relayCharacteristic.writeValue("");
+  aCharacteristic.writeValue("");
  
   //start advertising
   BLE.advertise();
   Serial.println("Setup as a peripheral successful");
-
-
 }
 
 
 void peripheralLoop() {
   BLEDevice central = BLE.central();
  
-  if (central) {
-
-      if(relayCharacteristic.written()) {
-        messageFromA = relayCharacteristic.value();
-        if (messageFromA.charAt(1) == 'r') {
-          Serial.println(messageFromA);
+// if this current board is the destination of a message, it is printed on the terminal
+      if(aCharacteristic.written()) {
+        messageFromB = aCharacteristic.value();
+        if(messageFromB.charAt(1) == 'a') {
+          Serial.println(messageFromB);
           box = true;
         } else {
           box = false;
-      }
-      }
+        }
+        }
 
+    }
   }
-}
+
 
 
 //============================
@@ -206,16 +209,15 @@ void peripheralLoop() {
 //============================
 
 void setup() {
+  // Set up serial connection from PC to this board
   Serial.begin(115200);
  
   while (!Serial);
-  
   Serial.println("Enter your name (10s):");
   Serial.setTimeout(10000);
   username = Serial.readStringUntil('\n');
-  
   Serial.print("Hi ");
-
+  Serial.println(username);  
  
 }
 
@@ -225,18 +227,18 @@ void loop() {
   unsigned long elapsedTime = currentTime - intervalStartTime;
 
   if (currentState == CENTRAL_SETUP) {
-    Serial.println("mode Central");
+    Serial.println("mode Central") ;
     // begin initialization
     if (!BLE.begin()) {
       Serial.println("Starting BLE module failed!");
       exit(1);
     }
 
-    //Serial.print("user : ");
-    //Serial.print(username);
-    Serial.print(" on ESP32s3_Relay ready to relay. . .");
+    Serial.print("user : ");
+    Serial.print(username);
+    Serial.print(" on ESP32s3_A ready to send . . .");
 
-    BLE.scanForName("ESP32s3_B");
+    BLE.scanForName("ESP32s3_R");
 
     BLEDevice peripheral = BLE.available();
     while (elapsedTime <= intervalDuration) {
@@ -244,9 +246,9 @@ void loop() {
       currentTime = millis();
       elapsedTime = currentTime - intervalStartTime;
     }
-    //peripheral.disconnect();
+
     intervalStartTime = currentTime;
-    currentState = PERIPHERAL_SETUP;
+    currentState = PERIPHERAL_SETUP; // switch state
   }
 
   if (currentState == PERIPHERAL_SETUP) {
@@ -254,16 +256,15 @@ void loop() {
     peripheralSetup();
     currentTime = millis();
     elapsedTime = currentTime - intervalStartTime;
-    while (elapsedTime <= 60000) {
+    while (elapsedTime <= 60000/*intervalDuration*/) {
       peripheralLoop();
       currentTime = millis();
       elapsedTime = currentTime - intervalStartTime;
     }
     intervalStartTime = currentTime;
-    currentState = CENTRAL_SETUP;
+    currentState = CENTRAL_SETUP; // switch state
   }
 }
-
 
 
 

@@ -1,7 +1,7 @@
 # IoT_ChatBLE_ESP32s3
 This program connects 3 Esp32S3 in BLE, and establishes a chat between them.  The program uses the serial port of each user.  It first asks the user to enter their name for the chat.  The user can then enter messages (choosing the receiver) and receive messages from other connected users.
 
-## Step 1 = Unidirectional chat in ./draft/UnidirectionalChat
+## Step 1 = Unidirectional chat in ./draft
 inspired by the **ArduinoBLE/Examples/Central/LedControl** and **ArduinoBLE/Examples/Peripheral/Led** in which the central modifies the value of the peripheral characteristic when its own reboot button is pressed --> the peripheral Led color changes
 
 We start the project by building an unidirectional chat :
@@ -11,7 +11,7 @@ We start the project by building an unidirectional chat :
 4/ the peripheral print his new characteristic
 
 ## Step 2 = Bidirectional chat thanks to a relay
-improvement from **step 1 ./draft**
+improvement inspired **by step ./draft**
 1/ upload ESP32_A.ino in one board, ESP32_r, in a second board, ESP32_B in a third board  
 2/ connects all boards in serial  
 3/ the board A starts as a central with the Board R as a Peripheral, the B starts as a Peripheral but doesn't have central yet  
@@ -40,30 +40,4 @@ In short, the state changes and abilities can be summed up in the following tabl
 | +30s     | Peripheral scanning | Central of B  | Peripheral of Relay|
 | +60s     | Peripheral of B | Peripheral scanning | Central of A|
 | +90s     | Central of Relay | Peripheral of A  | Peripheral scanning|
-| ...| repeat | repeat | repeat |
-
-## Step 3 = BLE chat with destination choice
-improvement from **step 2 ./draft/BidirectionalChat**
-
-All 3 Boards can act as both central and peripheral ie. can send, receive and transmit.
-That's why each board can choose the destination of the message.
-When one board's switch to central and if its characteristic was written during its peripheral state, the board check if it is the destination  :
-* if it does, the message is printed in the terminal, and the human user of the current board is asked to write a new message
-* if it does not, the message is transmitted to its peripheral without being printed
-
-### i/ states ability
-
-| State   |Abilities|
-| ------- | ------- |
-| CENTRAL | Print eventual message received + write in serial a message to send after selecting the destination |
-| PERIPHERAL| Wait for its characteristic to be written + the board's characteristic is written by its central |
-
-### ii/ states switches
-
-|Timeslot Start |state of Board A|State of Board R| State of Board B|
-| -------| -------        | -------            | -------         |
-| 0s     | Central of R | Peripheral of A  | Peripheral scanning|
-| +30s     | Peripheral scanning | Central of B  | Peripheral of R |
-| +60s     | Peripheral of B | Peripheral scanning | Central of A|
-| +90s     | Central of R | Peripheral of A  | Peripheral scanning|
 | ...| repeat | repeat | repeat |
