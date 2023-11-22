@@ -6,55 +6,22 @@ I carried out this ~15h projects as part of the course [NET4104: Wireless intern
 
 ## *Multi-hop BLE chat*
 
-This program connects 3 Esp32S3 in BLE, and establishes a chat between them.
+This program connects 3 Esp32S3 in BLE, and establishes a chat service between them.
 
 The program uses the serial port of each user. 
-It first asks the user to enter their name for the chat. 
-The user can then enter messages (choosing the receiver) and receive messages from other connected users.
+It first asks the user to enter their userrname for the chat (to make other human user able to know who's using the board). 
+The user can then send messages (and choose the receiver) and receive messages from other connected users.
 
 The special feature of the **use case allowing the user to choose the receiver** has made it possible to implement the "multi-hop" functionality within this network consisting of 3 esp32s3.
 
-## Composition tu repo Github
+## Repository content
 
-* Draft folder : contains the various stages and more/less functional tests as part of the project
-* Report_NET4104_chatBLE.pdf : project report with explanations of its design and code
+* Draft folder : contains the various stages of the chat service
 * main_ESP32s3_A.ino : code to *upload* on a first ESP32s3 (called ESP32s3_A)
 * main_ESP32s3_R.ino : code to *upload* on a second ESP32s3 (called ESP32s3_B)
 * main_ESP32s3_B.ino : code to *upload* on a third ESP32s3 (called ESP32s3_R)
 
-
-# Arborescence du dossier
-
-├─ [Draft](Draft)  
-├─ [main_ESP32s3_A.ino](main_ESP32s3_A.ino)  
-├─ [main_ESP32s3_B.ino](main_ESP32s3_B.ino)  
-├─ [main_ESP32s3_R.ino](main_ESP32s3_R.ino)  
-├─ [Report.pdf](Report.pdf)  
-└─ [README.md](README.md)  
-    ├─ [Unidirectional_Chat](Draft/Unidirectional_Chat)  
-    │   ├─ [Central_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Central_UnidirectionalChat.ino)  
-    │   ├─ [Peripheral_UnidirectionalChat.ino](Draft/Unidirectional_Chat/Peripheral_UnidirectionalChat.ino)  
-    │   └─ [README_UnidirectionalChat.md](Draft/Unidirectional_Chat/README_UnidirectionalChat.md)  
-    ├─ [Bidirectional_Chat](Draft/Bidirectional_Chat)  
-    │   ├─ [ESP32_A.ino](Draft/Bidirectional_Chat/ESP32_A.ino)  
-    │   ├─ [ESP32_B.ino](Draft/Bidirectional_Chat/ESP32_B.ino)  
-    │   ├─ [ESP32_Relay.ino](Draft/Bidirectional_Chat/ESP32_Relay.ino)  
-    │   └─ [README_BidirectionalChat.md](Draft/Bidirectional_Chat/README_BidirectionalChat.md)  
-    └─ [ChatBLE_DestinationChoice](Draft/ChatBLE_DestinationChoice)  
-        ├─ [ESP32s3_A.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_A.ino)  
-        ├─ [ESP32s3_B.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_B.ino)  
-        ├─ [ESP32s3_Relay.ino](Draft/ChatBLE_DestinationChoice/ESP32s3_Relay.ino)  
-        └─ [README_DestinationChoice.md](Draft/ChatBLE_DestinationChoice/README_DestinationChoice.md)  
-
-
-
-
-
-
-
-
-## *System design*
-*For more details on the design and implementation of the project, please refer to the document Rapport_NET4104_chatBLE.pdf*.
+## *Environment to implement the system*
 
 IDE chosen: Arduino IDE ([local](https://docs.arduino.cc/software/ide-v2)) or Arduino cloud ([online](https://cloud.arduino.cc/))
 
@@ -65,7 +32,7 @@ Using the [ArduinoBLE] library (https://www.arduino.cc/reference/en/libraries/ar
 * 3 USB ports for serial connection to the microcontrollers
 * use one or other of the IDEs mentioned above to implement the code corresponding to each ESP32s3.
 
-## *Implementing the system*
+## *Implementing and using the system*
 1/ install Arduino IDE or Arduino cloud  
 2/ upload \main_ESP32s3_R.ino on one serial-connected board (called R)   
 / upload \main_ESP32s3_A.ino on a second serial-connected board (called A)  
@@ -80,6 +47,16 @@ Using the [ArduinoBLE] library (https://www.arduino.cc/reference/en/libraries/ar
 12/ type new messages you want to send when it's your turn  
 13/ ...repeat...  
 
+## *Network system conception*
 
+* Each ESP32s3 can act as a Peripheral or a Central in a BLE connection.
+* The Central can modify Peripheral's characteristic (a 1024bytes string)
+> The system is a succession of 1 to 1 BLE connection  (as represented on the gif below)
+> each device is in Central mode for 30s (in which, it can read and display messages), then switch to Peripheral mode for 1 minute (in which it waits messages to be transmitted by other devices)  before switching to Central for 30s...  
+> when a device is in central mode, it checks if its characteristic as been written while it was a peripheral : 
+* if its characteristic has been written and if the current device is the desired receiver --> characteristic is displayed on the terminal and the human user can type a new message, whose value will be written on the current Peripheral's characteristic to be transmitted
+* if its characteristic has been written and if desired receiver is another device, the message (=characteristic) is not displayed on the terminal, but the current central device transmits automatically the value of its characteristic to the peripheral by writing the peripheral's characteristic. In other terms the central device is used as a relay
+* if its characteristic has not been written, no messages has been sent to the current device (central), so there's no new message to be displayed on terminal. The human user can type a new message, whose value will be written on the current Peripheral's characteristic to be transmitted
 
-
+## *1to1 BLE connection succession*
+![1to1 BLE connection succession](GIF_ChatBLE.gif) 
