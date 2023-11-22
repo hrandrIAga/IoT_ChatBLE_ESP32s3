@@ -35,7 +35,7 @@ Using the [ArduinoBLE] library (https://www.arduino.cc/reference/en/libraries/ar
 ## *Implementing and using the system*
 1/ install Arduino IDE or Arduino cloud  
 2/ upload \main_ESP32s3_R.ino on one serial-connected board (called R)   
-/ upload \main_ESP32s3_A.ino on a second serial-connected board (called A)  
+3/ upload \main_ESP32s3_A.ino on a second serial-connected board (called A)  
 4/ upload \main_ESP32s3_B.ino on a third serial-connected board (called B)  
 5/ launch (or click on reset button) the board R  
 6/ wait for 30 seconds  
