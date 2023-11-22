@@ -59,4 +59,4 @@ Using the [ArduinoBLE] library (https://www.arduino.cc/reference/en/libraries/ar
 * if its characteristic has not been written, no messages has been sent to the current device (central), so there's no new message to be displayed on terminal. The human user can type a new message, whose value will be written on the current Peripheral's characteristic to be transmitted
 
 ## *1to1 BLE connection succession*
-![1to1 BLE connection succession](GIF_ChatBLE.gif) 
+![1to1 BLE connection succession](https://github.com/hrandrIAga/IoT_ChatBLE_ESP32s3/blob/main/Gif_ChatBLE.gif) 
